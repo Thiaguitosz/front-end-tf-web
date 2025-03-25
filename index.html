@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IFMOBI</title>
+    <link href="styles.css" rel="stylesheet" />
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="logo">IFMobi</div>
+        <nav class="nav-links">
+            <!-- Links de navegação removidos conforme solicitado -->
+        </nav>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Novo botão Minha Carona será inserido aqui via JavaScript -->
+        </div>
+    </header>
+    
+    <section class="action-section">
+        <div class="action-button" id="offer-button">
+            <div class="icon-wrapper">
+                <img src="img/offer-icon.png" alt="Oferecer Ícone" class="action-icon">
+            </div>
+            <h2>OFERECER</h2>
+            <p>Se você possui um veículo e deseja oferecer carona, conecte-se com outros alunos.</p>
+        </div>
+        <div class="action-button" id="request-button">
+            <div class="icon-wrapper">
+                <img src="img/request-icon.png" alt="Pedir Ícone" class="action-icon">
+            </div>
+            <h2>PEDIR</h2>
+            <p>Encontre uma carona disponível de forma rápida e segura.</p>
+        </div>
+    </section>
+    
+    <section id="available-rides-section" class="available-rides-section">
+        <div class="section-header">
+            <h2>Caronas Disponíveis</h2>
+            <button id="close-dashboard" class="close-dashboard">
+                <img src="img/close-icon.png" alt="Fechar" class="close-icon">
+            </button>
+        </div>
+        
+        <div class="rides-container" id="rides-container">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Carregando caronas disponíveis...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal para Editar Carona -->
+    <div id="edit-ride-modal" class="modal-container">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Minha Carona</h2>
+                <button class="close-button" id="close-edit-ride-modal">&times;</button>
+            </div>
+            <form id="edit-ride-form">
+                <div class="form-group">
+                    <label for="edit-origin">Origem</label>
+                    <input type="text" id="edit-origin" name="origin" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-destination">Destino</label>
+                    <input type="text" id="edit-destination" name="destination" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-departure-time">Horário de Partida</label>
+                    <input type="datetime-local" id="edit-departure-time" name="departure-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-available-seats">Assentos Disponíveis</label>
+                    <input type="number" id="edit-available-seats" name="available-seats" min="1" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" id="cancel-edit-ride">Cancelar</button>
+                    <button type="submit" class="submit-button">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

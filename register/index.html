@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - IFMobi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="signup-box">
+            <h2>Crie sua conta</h2>
+            <form id="signupForm">
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" required>
+
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" required>
+
+                <label for="phone">Número de telefone (opcional)</label>
+                <input type="tel" id="phone">
+
+                <label for="password">Senha *</label>
+                <input type="password" id="password" required>
+
+                <label for="confirm-password">Confirme sua senha *</label>
+                <input type="password" id="confirm-password" required>
+
+                <button type="submit">Cadastrar</button>
+            </form>
+            <p>Já tem uma conta? <a href="../login/">Entre aqui</a></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
