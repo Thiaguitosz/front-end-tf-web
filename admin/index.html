@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <div class="logo">IFMobi Admin</div>
+    <nav class="nav-links">
+      <a href="#" class="nav-item active" data-section="users">Usuários</a>
+      <a href="#" class="nav-item" data-section="rides">Caronas</a>
+    </nav>
+    <div class="auth-buttons">
+      <button class="home">Voltar à Home</button>
+      <button class="logout">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="users" class="section active">
+      <h2 class="section-title">Lista de Usuários</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Data de Criação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dados serão preenchidos dinamicamente -->
+        </tbody>
+      </table>
+    </section>
+    <section id="rides" class="section">
+      <h2 class="section-title">Lista de Caronas</h2>
+      <table class="data-table caronas-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Motorista</th>
+            <th>Local de Partida</th>
+            <th>Destino</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Vagas Disponíveis</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dados serão preenchidos dinamicamente -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

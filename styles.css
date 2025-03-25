@@ -1,0 +1,980 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+html {
+    scroll-behavior: smooth;
+    background-color: #121826;
+    color: #e0e6f0;
+    scrollbar-width: thin;
+    scrollbar-color: #4a90e2 #202b3c;
+}
+
+/* Navbar */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: transparent;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+header.scrolled {
+    background-color: rgba(26, 35, 50, 0.9);
+    border-bottom: 2px solid #4a90e2;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #e0e6f0;
+    font-size: 18px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #4a90e2;
+}
+
+/* Corrigindo a visibilidade da nav quando scrollada */
+header .nav-links {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Botões de Autenticação */
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.auth-buttons a {
+    display: inline-block;
+}
+
+.auth-buttons button {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.login {
+    background-color: transparent;
+    color: #4a90e2;
+    border: 2px solid #4a90e2;
+}
+
+.login:hover {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.signup {
+    background-color: #4a90e2;
+    color: white;
+    border: 2px solid #4a90e2;
+}
+
+.signup:hover {
+    background-color: #357abd;
+    border-color: #357abd;
+}
+
+/* Logout e Admin buttons */
+.logout {
+    color: #ffffff;
+    background-color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.logout:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+    color: #ffffff;
+}
+
+.admin {
+    color: #fff;
+    background-color: #f39c12;
+    border: 2px solid #f39c12;
+}
+
+.admin:hover {
+    background-color: #e67e22;
+    border-color: #e67e22;
+}
+
+/* Ícones */
+.logout-icon,
+.sair-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.shield-icon,
+.escudo-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Seções */
+section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+.home-sec {
+    background-color: #1a2332;
+}
+
+.about-sec {
+    background-color: #202b3c;
+}
+
+.faq-sec {
+    background-color: #263349;
+}
+
+/* Botões da Dashboard */
+.action-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 80px 0;
+    background-color: #181f2a;
+}
+
+.action-button {
+    width: 320px;
+    height: 280px;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, border 0.3s, background 0.3s;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.action-button:hover:not(.disabled) {
+    transform: scale(1.07);
+    border: 2px solid #4a90e2;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+}
+
+.action-button h2 {
+    font-size: 22px;
+    color: white;
+    margin-bottom: 8px;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+}
+
+.action-button p {
+    font-size: 14px;
+    color: #b0b8c4;
+    max-width: 80%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* Efeito de overlay nos botões de ação */
+.action-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 18px;
+    /* Ligeiramente menor que o container para evitar problemas de renderização */
+    transition: background 0.3s;
+    z-index: 1;
+}
+
+.action-button:hover:not(.disabled)::before {
+    background: rgba(0, 0, 0, 0);
+}
+
+/* Estado desabilitado */
+.disabled {
+    filter: grayscale(100%);
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: auto;
+    /* Permite cliques para mostrar o alerta */
+}
+
+.disabled:hover {
+    transform: none;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Estilo da barra de rolagem */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #4a90e2;
+    border-radius: 5px;
+    border: 2px solid #2f3a52;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #357abd;
+    border-color: #4a90e2;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #202b3c;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-horizontal {
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background-color: #4a90e2;
+    border-radius: 5px;
+}
+
+/* Estilos para a modal - Adaptado para o tema escuro */
+.modal-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1a2332;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 500px;
+    overflow: hidden;
+    animation: modalAppear 0.3s ease-out;
+    border: 2px solid #2f3a52;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2f3a52;
+    background-color: #202b3c;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #e0e6f0;
+    font-weight: bold;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #b0b8c4;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: #4a90e2;
+}
+
+#offer-ride-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #e0e6f0;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #2f3a52;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    background-color: #263349;
+    color: #e0e6f0;
+}
+
+.form-group input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.cancel-button,
+.submit-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cancel-button {
+    background-color: transparent;
+    color: #e0e6f0;
+    border: 2px solid #2f3a52;
+}
+
+.cancel-button:hover {
+    background-color: #2f3a52;
+    border-color: #4a90e2;
+}
+
+.submit-button {
+    background-color: #4a90e2;
+    color: white;
+    border: 2px solid #4a90e2;
+}
+
+.submit-button:hover {
+    background-color: #357abd;
+    border-color: #357abd;
+}
+
+/* Estilo para mensagens de erro */
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Estilos para a seção de caronas disponíveis */
+.available-rides-section {
+    display: none;
+    /* Inicialmente oculta */
+    flex-direction: column;
+    min-height: 100vh;
+    /* Alterado de 'auto' para '100vh' */
+    padding: 40px;
+    background-color: #1a2332;
+    border-top: 3px solid #4a90e2;
+    border-bottom: 3px solid #4a90e2;
+    width: 100%;
+    /* Adicionado para garantir largura total */
+    position: relative;
+    /* Adicionado para posicionamento correto */
+}
+
+/* Adicione também esta propriedade para garantir que o conteúdo se expanda corretamente */
+.rides-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+    flex-grow: 1;
+    /* Adicionado para permitir que o container cresça */
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.section-header h2 {
+    font-size: 28px;
+    color: #e0e6f0;
+    position: relative;
+}
+
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    /* Alterado de 80px para 100% */
+    height: 3px;
+    background-color: #4a90e2;
+}
+
+.close-dashboard {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-dashboard:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.close-icon {
+    width: 24px;
+    height: 24px;
+    filter: invert(100%);
+}
+
+.rides-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+.ride-card {
+    background-color: #202b3c;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #2f3a52;
+    transition: transform 0.3s, border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    /* Use min-height instead of fixed height */
+    align-self: flex-start;
+    /* Prevent stretching */
+}
+
+.ride-card:hover {
+    transform: translateY(-5px);
+    border-color: #4a90e2;
+}
+
+.ride-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.ride-header h3 {
+    font-size: 18px;
+    color: #e0e6f0;
+    margin-bottom: 5px;
+}
+
+.ride-date {
+    font-size: 14px;
+    color: #b0b8c4;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.date-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.ride-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    overflow-y: visible;
+    /* Change from auto to visible */
+    flex: 0;
+    /* Change from 1 to 0 to not force expansion */
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-icon {
+    width: 20px;
+    height: 20px;
+    color: #4a90e2;
+}
+
+.info-text {
+    font-size: 15px;
+    color: #e0e6f0;
+}
+
+.ride-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    /* Add a specific margin instead of auto */
+}
+
+.available-seats {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.seat-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.seats-text {
+    font-size: 14px;
+    color: #e0e6f0;
+}
+
+.join-ride-btn {
+    padding: 8px 16px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.join-ride-btn:hover {
+    background-color: #357abd;
+}
+
+/* Estado de carregamento */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 50px;
+    grid-column: 1 / -1;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(74, 144, 226, 0.2);
+    border-left-color: #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estado vazio */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 50px;
+    text-align: center;
+    grid-column: 1 / -1;
+}
+
+.empty-icon {
+    font-size: 48px;
+    color: #4a90e2;
+    margin-bottom: 15px;
+}
+
+.empty-text {
+    font-size: 18px;
+    color: #b0b8c4;
+    margin-bottom: 20px;
+}
+
+.refresh-btn {
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.refresh-btn:hover {
+    background-color: #357abd;
+}
+
+.refresh-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .rides-container {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .rides-container {
+        grid-template-columns: 1fr;
+    }
+
+    .available-rides-section {
+        padding: 30px 20px;
+    }
+}
+
+/* Estilos para o botão de recarregar */
+.reload-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reload-button:hover {
+    background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.reload-button:active {
+    background-color: #3d8b40;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
+}
+
+.reload-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+}
+
+.reload-button:hover .reload-icon {
+    transform: rotate(180deg);
+}
+
+/* Estilo para quando o botão estiver em estado de carregamento */
+.reload-button.loading {
+    background-color: #999;
+    pointer-events: none;
+}
+
+.reload-button.loading .reload-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estilo para a área de botões da dashboard */
+#dashboard-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.my-ride img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Modal Container */
+#edit-ride-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Content */
+.edit-ride-modal-content {
+    background-color: #1a2332;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    border: 2px solid #2f3a52;
+    animation: modalAppear 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Header */
+.edit-ride-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #2f3a52;
+    background-color: #202b3c;
+}
+
+.edit-ride-modal-header h2 {
+    margin: 0;
+    color: #e0e6f0;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.close-edit-ride-modal {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #b0b8c4;
+    transition: color 0.2s;
+}
+
+.close-edit-ride-modal:hover {
+    color: #4a90e2;
+}
+
+/* Form Styling */
+#edit-ride-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #e0e6f0;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #2f3a52;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    background-color: #263349;
+    color: #e0e6f0;
+}
+
+.form-group input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.form-actions button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cancel-edit-ride {
+    background-color: transparent;
+    color: #e0e6f0;
+    border: 2px solid #2f3a52;
+}
+
+.cancel-edit-ride:hover {
+    background-color: #2f3a52;
+    border-color: #4a90e2;
+}
+
+.submit-edit-ride {
+    background-color: #4a90e2;
+    color: white;
+    border: 2px solid #4a90e2;
+}
+
+.submit-edit-ride:hover {
+    background-color: #357abd;
+    border-color: #357abd;
+}
+
+.delete-ride-button {
+    background-color: #e74c3c;
+    color: white;
+    border: 2px solid #e74c3c;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.delete-ride-button:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+input:invalid::after {
+    content: attr(data-min-date-formatted);
+}

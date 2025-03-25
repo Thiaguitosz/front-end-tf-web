@@ -1,0 +1,335 @@
+/* styles.css - Versão Otimizada */
+
+/* Variáveis para cores e valores reutilizáveis */
+:root {
+    --bg-primary: #121826;
+    --bg-secondary: #1a2332;
+    --bg-header: rgba(26, 35, 50, 0.9);
+    --color-primary: #4a90e2;
+    --color-text: #e0e6f0;
+    --color-edit: #f1c40f;
+    --color-edit-hover: #d4ac0d;
+    --color-delete: #e74c3c;
+    --color-delete-hover: #c0392b;
+    --color-confirm: #27ae60;
+    --color-confirm-hover: #219150;
+    --border-color: #3b475a;
+    --transition-default: 0.3s;
+    --border-radius: 8px;
+    --shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-primary);
+    color: var(--color-text);
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-text);
+    transition: color var(--transition-default);
+}
+
+button {
+    cursor: pointer;
+    transition: background var(--transition-default),
+        border var(--transition-default),
+        color var(--transition-default);
+}
+
+/* Layout */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: var(--bg-header);
+    border-bottom: 2px solid var(--color-primary);
+    transition: background var(--transition-default),
+        border-bottom var(--transition-default);
+    z-index: 1000;
+}
+
+main {
+    padding-top: 100px;
+}
+
+/* Logo */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+/* Navegação */
+.nav-links {
+    display: flex;
+    gap: 30px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.nav-links a {
+    font-size: 18px;
+    font-weight: 500;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-links a:hover,
+.nav-links .active {
+    color: var(--color-primary);
+}
+
+.nav-links .active {
+    border-bottom: 2px solid var(--color-primary);
+}
+
+/* Botões de Autenticação */
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.auth-buttons button {
+    padding: 10px 18px;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.home {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.home:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.logout {
+    background-color: var(--color-delete);
+    color: white;
+    border: 2px solid var(--color-delete);
+}
+
+.logout:hover {
+    background-color: white;
+    color: var(--color-delete);
+}
+
+/* Seções */
+.section {
+    min-height: 80vh;
+    padding: 20px 60px 40px;
+    display: none;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section.active {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: var(--color-primary);
+    text-align: center;
+    width: 100%;
+}
+
+/* Tabelas */
+.data-table {
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    margin: 0 auto;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.data-table thead {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(74, 144, 226, 0.1);
+}
+
+.data-table input {
+    width: 100%;
+    padding: 5px;
+    border: 2px solid var(--color-primary);
+    border-radius: 5px;
+    background-color: var(--bg-secondary);
+    color: var(--color-text);
+    font-size: 14px;
+    outline: none;
+}
+
+.data-table input:focus {
+    border-color: #67a7f4;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* Botões de Ação */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.action-buttons button {
+    margin-bottom: 15px;
+}
+
+/* Estilo comum para botões de ação */
+.edit-btn,
+.delete-btn,
+.confirm-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    color: white;
+}
+
+.edit-btn {
+    background-color: var(--color-edit);
+}
+
+.edit-btn:hover {
+    background-color: var(--color-edit-hover);
+}
+
+.delete-btn {
+    background-color: var(--color-delete);
+}
+
+.delete-btn:hover {
+    background-color: var(--color-delete-hover);
+}
+
+.confirm-btn {
+    background-color: var(--color-confirm);
+}
+
+.confirm-btn:hover {
+    background-color: var(--color-confirm-hover);
+}
+
+/* Estilos para os Dropdowns de Edição - Ajustados */
+select {
+    width: 100%;
+    min-width: 90px; /* Garante uma largura mínima */
+    padding: 5px 10px;
+    border: 2px solid var(--color-primary);
+    border-radius: 5px;
+    background-color: var(--bg-secondary);
+    color: var(--color-text);
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    appearance: none; /* Remove a aparência padrão do navegador */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a90e2' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 8px) center;
+    padding-right: 30px; /* Espaço para a seta */
+    white-space: nowrap; /* Impede a quebra de texto */
+    overflow: visible; /* Permite que o texto do dropdown ultrapasse os limites */
+    text-overflow: unset; /* Remove a elipse que corta o texto */
+}
+
+/* Estilo específico para o dropdown de status */
+td:nth-child(7) select, /* Coluna de Status na tabela de caronas */
+.status-select {
+    min-width: 100px; /* Largura mínima específica para o dropdown de status */
+}
+
+select:hover {
+    border-color: #67a7f4;
+}
+
+select:focus {
+    border-color: #67a7f4;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* Estilo para as opções dentro do dropdown */
+select option {
+    background-color: var(--bg-secondary);
+    color: var(--color-text);
+    padding: 8px;
+}
+
+/* Adicione estes estilos ao seu arquivo styles.css existente */
+
+/* Estilo para os campos não editáveis */
+
+  
+  /* Melhorar a visualização de data e hora */
+  .caronas-table td:nth-child(5),
+  .caronas-table td:nth-child(6) {
+    white-space: nowrap;
+  }
+  
+  /* Melhorar visualização do dropdown de motoristas */
+  #motorista-select {
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Melhorar estilo da tabela para acomodar mais colunas */
+  .caronas-table {
+    min-width: 1000px;
+  }
+  
+  /* Responsividade para tabelas */
+  @media (max-width: 1200px) {
+    .data-table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
