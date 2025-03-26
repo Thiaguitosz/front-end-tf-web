@@ -696,6 +696,7 @@ const ui = {
 
     // Adicionar evento para sempre manter atualizado
     timeInput.addEventListener('focus', () => {
+      
       setMinDateTime(timeInput);
     });
 

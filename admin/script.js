@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             // Verificar se o token é válido
-            const validateResponse = await fetch(`${API_BASE_URL}/validate-token`, {
+            const validateResponse = await fetch(`https://back-end-tf-web-alpha.vercel.app/auth/validate-token`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
