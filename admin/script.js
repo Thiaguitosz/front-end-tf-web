@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log(validationData)
 
             // Verificar se o usuário é admin
-            if (validationData.isAdmin !== 'admin') {
+            if (!validationData.isAdmin) {
                 redirectToLogin();
                 return false;
             }
