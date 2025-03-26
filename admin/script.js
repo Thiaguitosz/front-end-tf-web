@@ -1,9 +1,9 @@
 function initTableSorting() {
     const tables = document.querySelectorAll('#users, #rides');
-    
+
     tables.forEach(table => {
         const headers = table.querySelectorAll('thead th');
-        
+
         headers.forEach((header, index) => {
             // Determina colunas não sorteáveis
             const nonSortableColumns = {
@@ -13,71 +13,71 @@ function initTableSorting() {
 
             const tableId = table.id;
             if (nonSortableColumns[tableId].includes(index)) return;
-            
+
             // Adiciona estilo de cursor pointer
             header.style.cursor = 'pointer';
             header.classList.add('sortable-header');
-            
+
             header.addEventListener('click', () => {
                 const tbody = table.querySelector('tbody');
                 const rows = Array.from(tbody.querySelectorAll('tr'));
                 const isAscending = header.getAttribute('data-order') !== 'asc';
-                
+
                 // Remove indicadores de sorting de outros headers
                 headers.forEach(h => {
                     h.classList.remove('sorted-asc', 'sorted-desc');
                 });
-                
+
                 // Adiciona indicador de sorting no header atual
                 header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
                 header.setAttribute('data-order', isAscending ? 'asc' : 'desc');
-                
+
                 rows.sort((a, b) => {
                     const cellA = a.querySelectorAll('td')[index].textContent.trim();
                     const cellB = b.querySelectorAll('td')[index].textContent.trim();
-                    
+
                     // Tratamento especial para diferentes tipos de dados
                     if (index === 0) {  // ID (numérico)
-                        return isAscending 
-                            ? Number(cellA) - Number(cellB) 
+                        return isAscending
+                            ? Number(cellA) - Number(cellB)
                             : Number(cellB) - Number(cellA);
                     }
-                    
+
                     if (index === 4) {  // Colunas de data
                         // Converte data de "DD/MM/YYYY" para formato comparável
                         const parseDate = (dateStr) => {
                             const [day, month, year] = dateStr.split('/');
                             return new Date(year, month - 1, day);
                         };
-                        
+
                         const dateA = parseDate(cellA);
                         const dateB = parseDate(cellB);
-                        
-                        return isAscending 
-                            ? dateA - dateB 
+
+                        return isAscending
+                            ? dateA - dateB
                             : dateB - dateA;
                     }
-                    
+
                     // Sorting para campos de texto (ordem alfabética)
                     if ([1, 2, 3].includes(index)) {
-                        return isAscending 
-                            ? cellA.localeCompare(cellB) 
+                        return isAscending
+                            ? cellA.localeCompare(cellB)
                             : cellB.localeCompare(cellA);
                     }
-                    
+
                     // Sorting para números (vagas disponíveis)
                     if (index === 6) {
-                        return isAscending 
-                            ? Number(cellA) - Number(cellB) 
+                        return isAscending
+                            ? Number(cellA) - Number(cellB)
                             : Number(cellB) - Number(cellA);
                     }
-                    
+
                     // Fallback para comparação padrão
-                    return isAscending 
-                        ? cellA.localeCompare(cellB) 
+                    return isAscending
+                        ? cellA.localeCompare(cellB)
                         : cellB.localeCompare(cellA);
                 });
-                
+
                 // Reinsere as linhas na ordem correta
                 tbody.innerHTML = '';
                 rows.forEach(row => tbody.appendChild(row));
@@ -86,35 +86,83 @@ function initTableSorting() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // Configuração global
     const API_BASE_URL = "https://back-end-tf-web-alpha.vercel.app/api/admin";
     const token = localStorage.getItem("token");
 
-    // Variável para controlar edição em andamento
-    let isEditing = false;
+    // Função para redirecionar
+    const redirectToLogin = () => {
+        alert("Você não tem permissão para acessar esta página.");
+        window.location.href = "/login";
+    };
 
-    if (!token) {
-        alert("Token não encontrado. Faça login novamente.");
-        window.location.href = "/";
+    // Verificar autenticação e permissão de admin
+    const checkAdminAccess = async () => {
+        // Verifica se tem token
+        if (!token) {
+            redirectToLogin();
+            return false;
+        }
+
+        try {
+            // Verificar se o token é válido
+            const validateResponse = await fetch(`${API_BASE_URL}/validate-token`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-token': token
+                }
+            });
+
+            if (!validateResponse.ok) {
+                redirectToLogin();
+                return false;
+            }
+
+            const validationData = await validateResponse.json();
+
+            // Verificar se o usuário é admin
+            if (!validationData.isAdmin) {
+                redirectToLogin();
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error("Erro de autenticação:", error);
+            redirectToLogin();
+            return false;
+        }
+    };
+
+    // Bloquear toda a página se não for admin
+    const isAdminAccess = await checkAdminAccess();
+    if (!isAdminAccess) {
+        // Remove todo o conteúdo da página
+        document.body.innerHTML = '';
         return;
     }
 
+    // Restante do código anterior permanece o mesmo...
+    // [Insira todo o código original daqui para baixo]
     const headers = {
         "Content-Type": "application/json",
         "x-access-token": token
     };
+
+    // Variável para controlar edição em andamento
+    let isEditing = false;
 
     // Lista para armazenar todos os usuários (para o dropdown)
     let allUsers = [];
 
     // Inicializar interface
     initNavigation();
-    loadAllUsers(); // Carrega a lista de todos os usuários primeiro
+    await loadAllUsers(); // Carrega a lista de todos os usuários primeiro
     initDataTables();
     initButtons();
 
-    // Função para inicializar navegação
     function initNavigation() {
         const navItems = document.querySelectorAll(".nav-item");
         const sections = document.querySelectorAll(".section");
@@ -183,22 +231,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const motoristaSelect = document.getElementById("motorista-select");
         if (motoristaSelect) {
             const currentValue = motoristaSelect.value;
-            
+
             // Limpa as opções atuais
             motoristaSelect.innerHTML = "";
-            
+
             // Reinsere os usuários atualizados
             allUsers.forEach(user => {
                 const option = document.createElement("option");
                 option.value = user.nome;
                 option.textContent = `${user.id} | ${user.nome}`;
-                
+
                 // Mantém a seleção atual, se possível
                 // Note: This might need adjustment if you want to match the new display format
                 if (user.nome === currentValue) {
                     option.selected = true;
                 }
-                
+
                 motoristaSelect.appendChild(option);
             });
         }
