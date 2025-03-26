@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const validationData = await validateResponse.json();
 
             // Verificar se o usuário é admin
-            if (!validationData.isAdmin) {
+            if (validationData.isAdmin !== 'admin') {
                 redirectToLogin();
                 return false;
             }
