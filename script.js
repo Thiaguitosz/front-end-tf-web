@@ -22,6 +22,40 @@ const auth = {
     return null;
   },
 
+  async validateToken() {
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      const response = await fetch(`${API_URL}/auth/validate-token`, {
+        method: 'GET',
+        headers: { 'x-access-token': token }
+      });
+
+      if (!response.ok) {
+        // Erro na requisição, considerar token inválido
+        this.removeToken();
+        return false;
+      }
+
+      const data = await response.json();
+
+      // Se o backend retornar false, remover o token
+      if (data.valid === false) {
+        alert("Seu token expirou! Faça login novamente.")
+        this.removeToken();
+        return false;
+      }
+
+      // Token é válido
+      return true;
+    } catch (error) {
+      console.error("Erro ao validar token:", error);
+      this.removeToken();
+      return false;
+    }
+  },
+
   async hasActiveRide() {
     const token = this.getToken();
     if (!token) return false;
@@ -120,11 +154,11 @@ const ui = {
   addMyRideButton() {
     const authContainer = DOM_ELEMENTS.authContainer();
     const offerButton = DOM_ELEMENTS.offerButton();
-  
+
     // Verifica se o botão Minha Carona já não existe
     const existingMyRideButton = authContainer.querySelector('.my-ride');
     if (existingMyRideButton) return;
-  
+
     // Criar botão Minha Carona
     const myRideButton = this.createButton({
       className: 'my-ride',
@@ -136,18 +170,20 @@ const ui = {
         this.openMyRideModal();
       }
     });
-  
-    // Inserir antes do botão de logout ou no final
-    const logoutButton = authContainer.querySelector('.logout');
-    if (logoutButton) {
-      authContainer.insertBefore(myRideButton, logoutButton);
+
+    // Inserir como primeiro elemento do authContainer
+    if (authContainer.firstChild) {
+      authContainer.insertBefore(myRideButton, authContainer.firstChild);
     } else {
+      // Se o container estiver vazio, simplesmente adicionar
       authContainer.appendChild(myRideButton);
     }
-  
+
     // Remove a classe disabled do botão de oferecer carona
-    offerButton.classList.remove('disabled');
-    offerButton.onclick = () => this.openOfferModal();
+    if (offerButton) {
+      offerButton.classList.remove('disabled');
+      offerButton.onclick = () => this.openOfferModal();
+    }
   },
 
   async updateAuthButtons() {
@@ -426,28 +462,28 @@ const ui = {
   renderRides(rides) {
     const ridesContainer = DOM_ELEMENTS.ridesContainer();
     ridesContainer.innerHTML = '';
-  
+
     rides.forEach(ride => {
       try {
         // Parsing and formatting the date
         const rideDate = new Date(ride.horario);
         let dateDisplay = 'Data indisponível';
         let timeDisplay = '';
-  
+
         if (!isNaN(rideDate.getTime())) {
           // Format date in DD/MM/YYYY
           const day = String(rideDate.getDate()).padStart(2, '0');
           const month = String(rideDate.getMonth() + 1).padStart(2, '0');
           const year = rideDate.getFullYear();
           dateDisplay = `${day}/${month}/${year}`;
-  
+
           // Extract time
           timeDisplay = ride.horario.substring(11, 16); // Pega "HH:MM"
         }
-  
+
         // Nome do motorista - usar um valor padrão se não estiver disponível
         const driverName = ride.nome_motorista || "Motorista não identificado";
-  
+
         const rideCard = document.createElement('div');
         rideCard.className = 'ride-card';
         rideCard.innerHTML = `
@@ -482,11 +518,11 @@ const ui = {
             <button class="join-ride-btn" data-ride-id="${ride.id || ''}">Participar</button>
           </div>
         `;
-  
+
         // Adicionar evento ao botão de participar
         const joinButton = rideCard.querySelector('.join-ride-btn');
         joinButton.addEventListener('click', () => this.handleJoinRide(ride.id));
-  
+
         ridesContainer.appendChild(rideCard);
       } catch (error) {
         console.error('Erro ao renderizar carona:', error, ride);
@@ -564,6 +600,9 @@ const ui = {
 
       // Definir o valor mínimo do input
       inputElement.min = minDateTime;
+
+      // Definir o valor atual do input para o momento atual
+      inputElement.value = minDateTime;
 
       // Adicionar um atributo de dados com a data formatada para a mensagem de erro
       inputElement.dataset.minDateFormatted = brazilTime.toLocaleString('pt-BR', {
@@ -763,7 +802,58 @@ const ui = {
 
   // Função para lidar com o formulário de oferecer carona
   handleOfferRideSubmit: async function (event) {
-    // [código anterior permanece o mesmo]
+    event.preventDefault();
+
+    const token = auth.getToken();
+    if (!token) {
+      alert('Você precisa estar logado para oferecer carona.');
+      return;
+    }
+
+    // Collect form data
+    const horarioInput = document.getElementById('horario');
+    const inputTime = horarioInput.value;
+
+    // Get current time in Brazil timezone
+    const now = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+    const currentTime = new Date(now);
+    const inputTimeDate = new Date(inputTime);
+
+    // Validate input time
+    if (inputTimeDate <= currentTime) {
+      alert(`Selecione um horário futuro. O horário mínimo é: ${currentTime.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`);
+
+      // Manually set the validation state
+      horarioInput.setCustomValidity(`Selecione um horário após ${currentTime.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`);
+
+      // Trigger validation display
+      horarioInput.reportValidity();
+      return;
+    }
+
+    // Reset custom validity
+    horarioInput.setCustomValidity('');
+
+    // Collect other form data
+    const formData = {
+      local_partida: document.getElementById('local_partida').value,
+      destino: document.getElementById('destino').value,
+      horario: inputTime,
+      vagas_disponiveis: parseInt(document.getElementById('vagas_disponiveis').value, 10)
+    };
+
     try {
       const response = await fetch(`${API_URL}/caronas`, {
         method: 'POST',
@@ -773,19 +863,19 @@ const ui = {
         },
         body: JSON.stringify(formData)
       });
-  
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao criar carona');
       }
-  
+
       const data = await response.json();
       alert('Carona oferecida com sucesso!');
       ui.closeOfferModal();
-  
+
       // Adiciona o botão Minha Carona de forma mais fluida
       ui.addMyRideButton();
-  
+
       // Se o dashboard de caronas estiver aberto, atualizar a lista
       if (DOM_ELEMENTS.ridesSection().style.display === 'flex') {
         ui.loadAvailableRides();
@@ -803,41 +893,41 @@ const ui = {
       alert('Você precisa estar logado.');
       return;
     }
-  
+
     try {
       // Buscar caronas ativas do usuário
       const response = await fetch(`${API_URL}/caronas/minhas`, {
         method: 'GET',
         headers: { 'x-access-token': token }
       });
-  
+
       if (!response.ok) {
         throw new Error('Erro ao buscar caronas');
       }
-  
+
       const rides = await response.json();
       const activeRide = rides.find(ride => ride.status === 'Ativa');
-  
+
       if (!activeRide) {
         alert('Nenhuma carona ativa encontrada.');
         return;
       }
-  
+
       // INÍCIO DA NOVA FUNÇÃO DE VALIDAÇÃO DE DATA
       const setMinDateTime = (inputElement) => {
         const now = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
         const brazilTime = new Date(now);
-  
+
         const year = brazilTime.getFullYear();
         const month = String(brazilTime.getMonth() + 1).padStart(2, '0');
         const day = String(brazilTime.getDate()).padStart(2, '0');
         const hours = String(brazilTime.getHours()).padStart(2, '0');
         const minutes = String(brazilTime.getMinutes()).padStart(2, '0');
-  
+
         const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-  
+
         inputElement.min = minDateTime;
-  
+
         inputElement.dataset.minDateFormatted = brazilTime.toLocaleString('pt-BR', {
           day: '2-digit',
           month: '2-digit',
@@ -847,92 +937,92 @@ const ui = {
         });
       };
       // FIM DA NOVA FUNÇÃO DE VALIDAÇÃO DE DATA
-  
+
       const modal = document.getElementById('edit-ride-modal');
       const form = document.getElementById('edit-ride-form');
-  
+
       // Remove any existing delete button to prevent duplication
       const existingDeleteButton = form.querySelector('.delete-ride-button');
       if (existingDeleteButton) {
         existingDeleteButton.remove();
       }
-  
+
       // Populate form with updated ride details
       document.getElementById('edit-origin').value = activeRide.local_partida || '';
       document.getElementById('edit-destination').value = activeRide.destino || '';
-  
+
       // Convert ISO date to datetime-local input format
       const horarioISO = activeRide.horario;
-  
+
       // Extraindo data e hora diretamente da string sem conversão
       const formattedDateTime = horarioISO.substring(0, 16); // "YYYY-MM-DDTHH:MM"
-  
+
       const departureTimeInput = document.getElementById('edit-departure-time');
       departureTimeInput.value = formattedDateTime;
-  
+
       // INÍCIO DOS NOVOS EVENTOS DE VALIDAÇÃO
       // Definir horário mínimo inicial
       setMinDateTime(departureTimeInput);
-  
+
       // Adicionar evento para sempre manter atualizado
       departureTimeInput.addEventListener('focus', () => {
         setMinDateTime(departureTimeInput);
       });
-  
+
       // Adicionar os novos eventos de validação
       departureTimeInput.addEventListener('invalid', (event) => {
         event.target.setCustomValidity(`Selecione um valor não anterior a ${event.target.dataset.minDateFormatted}`);
       });
-  
+
       departureTimeInput.addEventListener('input', (event) => {
         event.target.setCustomValidity('');
       });
       // FIM DOS NOVOS EVENTOS DE VALIDAÇÃO
-  
+
       document.getElementById('edit-available-seats').value = activeRide.vagas_disponiveis || 1;
-  
+
       // Show modal
       modal.style.display = 'flex';
-  
+
       // Setup close buttons
       const closeButton = document.getElementById('close-edit-ride-modal');
-  
+
       // Close modal functions
       const closeModal = () => {
         modal.style.display = 'none';
       };
-  
+
       closeButton.onclick = closeModal;
-  
+
       // Close on outside click
       modal.onclick = (event) => {
         if (event.target === modal) {
           closeModal();
         }
       };
-  
+
       // Remove the cancel button
       const cancelButton = document.getElementById('cancel-edit-ride');
       if (cancelButton) {
         cancelButton.remove();
       }
-  
+
       // Handle form submission
       form.onsubmit = async (event) => {
         event.preventDefault();
-  
+
         const token = auth.getToken();
         if (!token) {
           alert('Você precisa estar logado para atualizar carona.');
           return;
         }
-  
+
         // Get the input time directly
         const inputTime = document.getElementById('edit-departure-time').value;
-  
+
         // Create a date object from the input
         const horarioDate = new Date(inputTime);
-  
+
         // Manually format the date to preserve the exact time
         const year = horarioDate.getFullYear();
         const month = String(horarioDate.getMonth() + 1).padStart(2, '0');
@@ -940,17 +1030,17 @@ const ui = {
         const hours = String(horarioDate.getHours()).padStart(2, '0');
         const minutes = String(horarioDate.getMinutes()).padStart(2, '0');
         const seconds = '00';
-  
+
         // Create the formatted string without timezone conversion
         const horario = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-  
+
         const formData = {
           local_partida: document.getElementById('edit-origin').value,
           destino: document.getElementById('edit-destination').value,
           horario: horario,
           vagas_disponiveis: parseInt(document.getElementById('edit-available-seats').value, 10)
         };
-  
+
         try {
           const response = await fetch(`${API_URL}/caronas/${activeRide.id}`, {
             method: 'PUT',
@@ -960,15 +1050,15 @@ const ui = {
             },
             body: JSON.stringify(formData)
           });
-  
+
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || 'Erro ao atualizar carona');
           }
-  
+
           alert('Carona atualizada com sucesso!');
           closeModal();
-  
+
           // Reload dashboard if open
           if (DOM_ELEMENTS.ridesSection().style.display === 'flex') {
             ui.loadAvailableRides();
@@ -978,16 +1068,16 @@ const ui = {
           alert(error.message || 'Erro ao atualizar carona. Tente novamente.');
         }
       };
-  
+
       // Create delete button
       const deleteButton = document.createElement('button');
       deleteButton.textContent = 'Excluir Carona';
       deleteButton.className = 'delete-ride-button';
       deleteButton.type = 'button';
-  
+
       deleteButton.onclick = async () => {
         if (!confirm('Tem certeza que deseja excluir esta carona?')) return;
-  
+
         try {
           const response = await fetch(`${API_URL}/caronas/${activeRide.id}`, {
             method: 'DELETE',
@@ -995,18 +1085,18 @@ const ui = {
               'x-access-token': token
             }
           });
-  
+
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || 'Erro ao excluir carona');
           }
-  
+
           alert('Carona excluída com sucesso!');
           closeModal();
-  
+
           // Reload auth buttons to remove My Ride button
           await this.updateAuthButtons();
-  
+
           // Reload dashboard if open
           if (DOM_ELEMENTS.ridesSection().style.display === 'flex') {
             this.loadAvailableRides();
@@ -1016,10 +1106,10 @@ const ui = {
           alert(error.message || 'Erro ao excluir carona. Tente novamente.');
         }
       };
-  
+
       // Get form actions div
       const formActions = form.querySelector('.form-actions');
-  
+
       // Insert delete button before the submit button
       const submitButton = formActions.querySelector('button[type="submit"]');
       formActions.insertBefore(deleteButton, submitButton);
@@ -1040,6 +1130,8 @@ const ui = {
 
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', async () => {
+  await auth.validateToken();
+
   ui.setupScrollEffect();
   ui.setupRequestButton();
   ui.setupOfferButton();

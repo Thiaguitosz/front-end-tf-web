@@ -333,3 +333,58 @@ select option {
       white-space: nowrap;
     }
   }
+
+  /* Desativa sorting para colunas específicas */
+#users thead th:nth-child(4),   /* Telefone */
+#users thead th:last-child,     /* Ações em Usuários */
+#rides thead th:nth-child(6),   /* Horário */
+#rides thead th:last-child {    /* Ações em Caronas */
+    cursor: default !important;
+}
+
+.sortable-header {
+    transition: background-color 0.3s ease;
+    user-select: none;
+    position: relative;
+}
+
+.sortable-header:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sortable-header::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.sortable-header.sorted-asc::after {
+    border-bottom: 5px solid #000;
+    opacity: 1;
+}
+
+.sortable-header.sorted-desc::after {
+    border-top: 5px solid #000;
+    opacity: 1;
+}
+
+/* Para colunas não sorteáveis, remove qualquer indicação de sorting */
+#users thead th:nth-child(4)::after,
+#users thead th:last-child::after,
+#rides thead th:nth-child(6)::after,
+#rides thead th:last-child::after {
+    display: none !important;
+}
+
+/* Animação suave para transição de sorting */
+tbody {
+    transition: all 0.3s ease;
+}

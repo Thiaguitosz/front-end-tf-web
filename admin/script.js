@@ -1,3 +1,91 @@
+function initTableSorting() {
+    const tables = document.querySelectorAll('#users, #rides');
+    
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('thead th');
+        
+        headers.forEach((header, index) => {
+            // Determina colunas não sorteáveis
+            const nonSortableColumns = {
+                'users': [3, headers.length - 1],  // Telefone e Ações
+                'rides': [5, headers.length - 1]   // Horário e Ações
+            };
+
+            const tableId = table.id;
+            if (nonSortableColumns[tableId].includes(index)) return;
+            
+            // Adiciona estilo de cursor pointer
+            header.style.cursor = 'pointer';
+            header.classList.add('sortable-header');
+            
+            header.addEventListener('click', () => {
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const isAscending = header.getAttribute('data-order') !== 'asc';
+                
+                // Remove indicadores de sorting de outros headers
+                headers.forEach(h => {
+                    h.classList.remove('sorted-asc', 'sorted-desc');
+                });
+                
+                // Adiciona indicador de sorting no header atual
+                header.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+                header.setAttribute('data-order', isAscending ? 'asc' : 'desc');
+                
+                rows.sort((a, b) => {
+                    const cellA = a.querySelectorAll('td')[index].textContent.trim();
+                    const cellB = b.querySelectorAll('td')[index].textContent.trim();
+                    
+                    // Tratamento especial para diferentes tipos de dados
+                    if (index === 0) {  // ID (numérico)
+                        return isAscending 
+                            ? Number(cellA) - Number(cellB) 
+                            : Number(cellB) - Number(cellA);
+                    }
+                    
+                    if (index === 4) {  // Colunas de data
+                        // Converte data de "DD/MM/YYYY" para formato comparável
+                        const parseDate = (dateStr) => {
+                            const [day, month, year] = dateStr.split('/');
+                            return new Date(year, month - 1, day);
+                        };
+                        
+                        const dateA = parseDate(cellA);
+                        const dateB = parseDate(cellB);
+                        
+                        return isAscending 
+                            ? dateA - dateB 
+                            : dateB - dateA;
+                    }
+                    
+                    // Sorting para campos de texto (ordem alfabética)
+                    if ([1, 2, 3].includes(index)) {
+                        return isAscending 
+                            ? cellA.localeCompare(cellB) 
+                            : cellB.localeCompare(cellA);
+                    }
+                    
+                    // Sorting para números (vagas disponíveis)
+                    if (index === 6) {
+                        return isAscending 
+                            ? Number(cellA) - Number(cellB) 
+                            : Number(cellB) - Number(cellA);
+                    }
+                    
+                    // Fallback para comparação padrão
+                    return isAscending 
+                        ? cellA.localeCompare(cellB) 
+                        : cellB.localeCompare(cellA);
+                });
+                
+                // Reinsere as linhas na ordem correta
+                tbody.innerHTML = '';
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // Configuração global
     const API_BASE_URL = "https://back-end-tf-web-alpha.vercel.app/api/admin";
@@ -76,6 +164,46 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    async function refreshUsersList() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/usuarios`, { headers });
+            if (!response.ok) throw new Error(`Erro ao buscar usuários (${response.status})`);
+            allUsers = await response.json();
+
+            // Atualiza o dropdown se já existir
+            updateDriverDropdown();
+        } catch (error) {
+            console.error("Erro ao atualizar lista de usuários:", error);
+            alert("Não foi possível atualizar a lista de usuários.");
+        }
+    }
+
+    // Nova função para atualizar o dropdown de motoristas
+    function updateDriverDropdown() {
+        const motoristaSelect = document.getElementById("motorista-select");
+        if (motoristaSelect) {
+            const currentValue = motoristaSelect.value;
+            
+            // Limpa as opções atuais
+            motoristaSelect.innerHTML = "";
+            
+            // Reinsere os usuários atualizados
+            allUsers.forEach(user => {
+                const option = document.createElement("option");
+                option.value = user.nome;
+                option.textContent = `${user.id} | ${user.nome}`;
+                
+                // Mantém a seleção atual, se possível
+                // Note: This might need adjustment if you want to match the new display format
+                if (user.nome === currentValue) {
+                    option.selected = true;
+                }
+                
+                motoristaSelect.appendChild(option);
+            });
+        }
+    }
+
     // Função para inicializar tabelas de dados
     function initDataTables() {
         const usersTableBody = document.querySelector("#users tbody");
@@ -115,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 deleteItem(rideId, "caronas", ridesTableBody, "rides");
             }
         });
+        initTableSorting();
     }
 
     // Função para inicializar botões de navegação
@@ -246,14 +375,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Função para formatar datas
     function formatDate(dateString) {
         if (!dateString) return "N/A";
-    
+
         // Extrai a parte da data sem modificar o fuso horário
         const datePart = dateString.substring(0, 10); // "YYYY-MM-DD"
-    
+
         // Reformatar para o padrão DD/MM/YYYY
         const [year, month, day] = datePart.split('-');
         return `${day}/${month}/${year}`;
-    }    
+    }
 
     // Função para cancelar edição atual e restaurar a interface
     function cancelCurrentEditing() {
@@ -329,13 +458,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Campo de motorista (primeiro campo após ID) - criar dropdown com usuários
                 if (index === 0) {
                     const select = document.createElement("select");
-                    select.id = "motorista-select"; // Adiciona ID para fácil referência
+                    select.id = "motorista-select";
 
                     // Adiciona usuários ao dropdown
                     allUsers.forEach(user => {
                         const option = document.createElement("option");
                         option.value = user.nome;
-                        option.textContent = user.nome;
+                        option.textContent = `${user.id} | ${user.nome}`;
                         if (user.nome === originalText) {
                             option.selected = true;
                         }
@@ -345,6 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     cell.textContent = "";
                     cell.appendChild(select);
                 }
+
                 // Colunas de data e hora (agora separadas) - ambas não editáveis
                 else if (index === 3 || index === 4) {
                     // Mantém o texto original, não cria input
@@ -488,8 +618,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         data[key] = vagas;
                     } else if (key === "motorista") {
-                        // Certifica-se de pegar o valor do select de motorista
-                        data[key] = input.value;
+                        // Certifica-se de pegar apenas o nome do motorista
+                        const selectedOption = input.options[input.selectedIndex];
+                        data[key] = selectedOption.value; // This will be just the name
                     } else {
                         data[key] = input.value.trim();
                     }
@@ -525,8 +656,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             alert("Atualização realizada com sucesso!");
             // Recarrega os dados em vez de recarregar a página inteira
-            const tableBody = table.querySelector("tbody");
-            fetchData(`${API_BASE_URL}/${endpoint}`, tableBody, isCaronasTable ? "rides" : "users");
+            const usersTableBody = document.querySelector("#users tbody");
+            const ridesTableBody = document.querySelector("#rides tbody");
+            fetchData(`${API_BASE_URL}/usuarios`, usersTableBody, "users");
+            fetchData(`${API_BASE_URL}/caronas`, ridesTableBody, "rides");
+
+            refreshUsersList();
 
             // Restaura o estado de edição
             isEditing = false;
