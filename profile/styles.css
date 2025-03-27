@@ -1,0 +1,123 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, sans-serif;
+}
+body {
+    background-color: #121826;
+    color: #e0e6f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.profile-container {
+    background-color: #1a2332;
+    width: 350px;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+.logo {
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.logo-image {
+    height: 40px;
+    width: 300px;
+    object-fit: contain;
+}
+.close {
+    position: absolute;
+    right: 0;
+    background-color: #202b3c;
+    color: #e0e6f0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+.profile-field {
+    background-color: #202b3c;
+    color: #e0e6f0;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+.profile-field.editable {
+    border-color: #4a90e2;
+}
+.profile-field-label {
+    color: #4a90e2;
+    margin-bottom: 5px;
+    display: block;
+    font-size: 14px;
+}
+.profile-field-value {
+    font-size: 14px;
+}
+.profile-field-input {
+    background-color: #202b3c;
+    color: #e0e6f0;
+    border: none;
+    width: 100%;
+    outline: none;
+    font-size: 14px;
+}
+.edit-button, .save-button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.edit-button:hover, .save-button:hover {
+    background-color: #357abd;
+}
+.password-field {
+    font-size: 14px;
+}
+.error-message {
+    color: #ff4444;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #b0b8c4;
+    transition: color 0.2s, transform 0.2s;
+    position: absolute;
+    right: -25px; /* Afastando mais da borda */
+    bottom: 25px; /* Levantando um pouco */
+    padding: 5px;
+}
+
+.close-button:hover {
+    color: #4a90e2;
+    transform: scale(1.2);
+}
+

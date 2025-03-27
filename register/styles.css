@@ -86,6 +86,11 @@ input:focus {
     box-shadow: 0 0 8px rgba(74, 144, 226, 0.5);
 }
 
+.phone-input-container:has(input:invalid) {
+    border: 1px solid #ff4d4d !important;
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+}
+
 /* Phone Input Styles */
 .phone-input-container {
     display: flex;
@@ -122,6 +127,7 @@ input:focus {
     color: #e0e6f0;
     font-size: 14px;
     height: 100%;
+    border: none;
 }
 
 button {

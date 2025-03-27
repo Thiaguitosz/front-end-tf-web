@@ -40,10 +40,12 @@ body {
 }
 
 .logo-text {
-    font-size: 24px;
-    font-weight: bold;
     margin-bottom: 20px;
-    color: #4a90e2;
+}
+
+.logo-img {
+    width: 120px; /* Ajuste o tamanho da logo conforme necessário */
+    height: auto;
 }
 
 h2 {

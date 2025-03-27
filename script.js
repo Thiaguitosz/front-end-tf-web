@@ -186,6 +186,9 @@ const ui = {
     }
   },
 
+  // Existing method with added profile button logic
+
+  // Update the updateAuthButtons method in the ui object
   async updateAuthButtons() {
     const authContainer = DOM_ELEMENTS.authContainer();
     const offerButton = DOM_ELEMENTS.offerButton();
@@ -194,7 +197,7 @@ const ui = {
     const isAuthenticated = await auth.isAuthenticated();
 
     if (isAuthenticated) {
-      // Verifica caronas ativas antes de adicionar o botão Minha Carona
+      // Verifies active rides before adding My Ride button
       try {
         const response = await fetch(`${API_URL}/caronas/minhas`, {
           method: 'GET',
@@ -203,14 +206,13 @@ const ui = {
 
         if (!response.ok) {
           console.error('Erro ao verificar caronas ativas');
-          console.log(response)
           return;
         }
 
         const rides = await response.json();
         const activeRide = rides.find(ride => ride.status === 'Ativa');
 
-        // Adicionar botão Minha Carona apenas se houver carona ativa
+        // Add My Ride button only if there's an active ride
         if (activeRide) {
           const myRideButton = this.createButton({
             className: 'my-ride',
@@ -228,7 +230,7 @@ const ui = {
         console.error("Erro ao verificar caronas ativas:", error);
       }
 
-      // Verifica se é admin e adiciona botão admin se for
+      // Check if admin and add admin button if applicable
       const userType = await auth.getUserType();
       if (userType === 'admin') {
         const adminButton = this.createButton({
@@ -254,13 +256,40 @@ const ui = {
       });
       authContainer.appendChild(logoutButton);
 
-      // Remove a classe disabled se estiver presente
-      offerButton.classList.remove('disabled');
-      // Atualiza o handler do botão de oferecer
-      offerButton.onclick = () => this.openOfferModal();
+      // NEW: Profile Icon Button - Borderless, Icon-Only
+      const profileIconButton = document.createElement('a');
+      profileIconButton.href = '../profile/';
+      profileIconButton.className = 'profile-icon-button';
+      profileIconButton.style.display = 'flex';
+      profileIconButton.style.alignItems = 'center';
+      profileIconButton.style.justifyContent = 'center';
+      profileIconButton.style.background = 'none';
+      profileIconButton.style.border = 'none';
+      profileIconButton.style.cursor = 'pointer';
+      profileIconButton.style.padding = '8px';
+      profileIconButton.style.borderRadius = '50%';
+      profileIconButton.style.transition = 'background-color 0.3s ease';
+
+      // Add hover effect
+      profileIconButton.addEventListener('mouseover', () => {
+        profileIconButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+      });
+      profileIconButton.addEventListener('mouseout', () => {
+        profileIconButton.style.backgroundColor = 'transparent';
+      });
+
+      const profileIcon = document.createElement('img');
+      profileIcon.src = 'img/profile-icon.png';
+      profileIcon.alt = 'Perfil';
+      profileIcon.style.width = '24px';
+      profileIcon.style.height = '24px';
+      profileIcon.style.filter = 'invert(100%)'; // Optional: to match other icons
+
+      profileIconButton.appendChild(profileIcon);
+      authContainer.appendChild(profileIconButton);
 
     } else {
-      // Usuário não autenticado - adiciona botões de login e cadastro
+      // Unauthenticated state
       const loginButton = this.createButton({
         href: '/login',
         className: 'login',
@@ -276,7 +305,7 @@ const ui = {
       authContainer.appendChild(loginButton);
       authContainer.appendChild(signupButton);
 
-      // Desabilita o botão de oferecer
+      // Disable offer button
       this.disableOfferButton(offerButton);
     }
   },
@@ -521,7 +550,7 @@ const ui = {
 
         // Adicionar evento ao botão de participar
         const joinButton = rideCard.querySelector('.join-ride-btn');
-        joinButton.addEventListener('click', () => this.handleJoinRide(ride.id));
+        joinButton.addEventListener('click', () => this.handleJoinRide(ride.telefone_motorista, ride.destino, `${dateDisplay} às ${timeDisplay}`));
 
         ridesContainer.appendChild(rideCard);
       } catch (error) {
@@ -531,39 +560,21 @@ const ui = {
   },
 
   // Função para lidar com a participação em uma carona
-  async handleJoinRide(rideId) {
-    // Verificar se o usuário está autenticado
-    if (!auth.getToken()) {
-      alert('Você precisa estar logado para participar de uma carona.');
-      return;
-    }
-
-    // Aqui você implementaria a lógica para participar da carona
-    alert(`Funcionalidade de participar da carona ${rideId} será implementada em breve!`);
-
-    // Código comentado para futura implementação:
-    /*
+  async handleJoinRide(numero_motorista, destino, horario) {
     try {
-      const response = await fetch(`${API_URL}/caronas/${rideId}/participar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': auth.getToken()
-        }
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erro ao participar da carona');
-      }
-      
-      alert('Você se inscreveu na carona com sucesso!');
-      this.loadAvailableRides(); // Recarregar para atualizar as vagas
+      // Criar a mensagem para o WhatsApp
+      const mensagem = `Oi, vi sua carona no IFMobi e gostaria de participar! \nCarona para: ${destino} no dia ${horario}.`;
+
+      // Redirecionar o usuário para o WhatsApp com a mensagem pré-preenchida
+      const whatsappLink = `https://wa.me/${numero_motorista}?text=${encodeURIComponent(mensagem)}`;
+      window.open(whatsappLink, '_blank');
+
+      alert('Você será redirecionado para o WhatsApp do motorista para confirmar sua participação.');
+
     } catch (error) {
       console.error('Erro ao participar da carona:', error);
       alert(error.message || 'Erro ao participar da carona. Tente novamente.');
     }
-    */
   },
 
   setupOfferButton() {
@@ -696,7 +707,7 @@ const ui = {
 
     // Adicionar evento para sempre manter atualizado
     timeInput.addEventListener('focus', () => {
-      
+
       setMinDateTime(timeInput);
     });
 
