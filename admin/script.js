@@ -498,17 +498,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const table = row.closest("table");
         const isCaronasTable = table && table.classList.contains("caronas-table");
         const cells = row.querySelectorAll("td:not(:first-child):not(:last-child)");
-
+    
         cells.forEach((cell, index) => {
             const originalText = cell.textContent.trim();
-
+    
             // Tabela de Caronas
             if (isCaronasTable) {
                 // Campo de motorista (primeiro campo após ID) - criar dropdown com usuários
                 if (index === 0) {
                     const select = document.createElement("select");
                     select.id = "motorista-select";
-
+    
                     // Adiciona usuários ao dropdown
                     allUsers.forEach(user => {
                         const option = document.createElement("option");
@@ -519,16 +519,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                         select.appendChild(option);
                     });
-
+    
                     cell.textContent = "";
                     cell.appendChild(select);
                 }
-
-                // Colunas de data e hora (agora separadas) - ambas não editáveis
-                else if (index === 3 || index === 4) {
-                    // Mantém o texto original, não cria input
-                    cell.setAttribute("data-original", originalText);
-                    cell.innerHTML = `<span class="non-editable">${originalText}</span>`;
+                // Campos de data e hora agora são editáveis
+                else if (index === 3) { // Campo de data
+                    const input = document.createElement("input");
+                    input.type = "date";
+                    
+                    // Parse da data original (formato DD/MM/YYYY)
+                    const [day, month, year] = originalText.split('/');
+                    input.value = `${year}-${month}-${day}`;
+                    
+                    cell.textContent = "";
+                    cell.appendChild(input);
+                }
+                else if (index === 4) { // Campo de hora
+                    const input = document.createElement("input");
+                    input.type = "time";
+                    input.value = originalText;
+                    
+                    cell.textContent = "";
+                    cell.appendChild(input);
                 }
                 // Campo de status
                 else if (index === 6) {
@@ -562,7 +575,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     cell.appendChild(input);
                 }
             }
-            // Tabela de Usuários
+            // Tabela de Usuários (mantém a lógica original)
             else {
                 // Campo de data de criação (não editável)
                 if (index === 3) {
@@ -615,7 +628,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const table = row.closest("table");
         const isCaronasTable = table.classList.contains("caronas-table");
         const id = row.querySelector("td:first-child").textContent.trim();
-
+    
         // Define as chaves baseado no tipo de tabela
         let keys;
         if (isCaronasTable) {
@@ -624,72 +637,102 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             keys = ["nome", "email", "telefone", "criado_em"];
         }
-
+    
         // Coleta os dados
         const data = {};
         const cells = row.querySelectorAll("td:not(:first-child):not(:last-child)");
-
+    
         // Para caronas, precisamos preservar o timestamp original
         let originalTimestamp = "";
-
+    
         if (isCaronasTable) {
             // Pegar as células de data e hora para extrair o timestamp original
             const dateCell = cells[3]; // Índice da célula de data
             const timeCell = cells[4]; // Índice da célula de hora
-
+    
             if (dateCell.hasAttribute("data-original") && timeCell.hasAttribute("data-original")) {
                 // Se temos os dados originais, vamos usar para manter o timestamp
                 originalTimestamp = row.getAttribute("data-timestamp");
             }
-        }
-
-        cells.forEach((cell, index) => {
-            const key = keys[index];
-
-            // Pula campos não editáveis (mantém valor original)
-            if (cell.querySelector(".non-editable")) {
-                if (isCaronasTable && (key === "data" || key === "hora")) {
-                    // Não fazemos nada aqui, vamos lidar com o timestamp no final
-                } else if (!isCaronasTable && key === "criado_em") {
-                    // Preserva a data de criação original para usuários
-                    // Este campo não será enviado na atualização
-                }
-            }
-            // Coleta dados de inputs e selects
-            else {
+    
+            cells.forEach((cell, index) => {
+                const key = keys[index];
                 const input = cell.querySelector("input, select");
+                
                 if (input) {
-                    if (key === "vagas_disponiveis") {
-                        // Garante que vagas_disponiveis seja um número válido
+                    if (key === "motorista") {
+                        // Certifica-se de pegar apenas o nome do motorista
+                        const selectedOption = input.options[input.selectedIndex];
+                        data[key] = selectedOption.value;
+                    }
+                    else if (key === "data") {
+                        // Converte data de volta para formato DD/MM/YYYY
+                        const dateValue = input.value;
+                        if (dateValue) {
+                            const [year, month, day] = dateValue.split('-');
+                            data[key] = `${day}/${month}/${year}`;
+                        }
+                    }
+                    else if (key === "hora") {
+                        data[key] = input.value;
+                    }
+                    else if (key === "vagas_disponiveis") {
                         let vagas = parseInt(input.value, 10);
                         if (isNaN(vagas) || vagas <= 0) {
                             vagas = 1;
                         }
                         data[key] = vagas;
-                    } else if (key === "motorista") {
-                        // Certifica-se de pegar apenas o nome do motorista
-                        const selectedOption = input.options[input.selectedIndex];
-                        data[key] = selectedOption.value; // This will be just the name
-                    } else {
+                    }
+                    else if (key === "status") {
+                        data[key] = input.value;
+                    }
+                    else {
                         data[key] = input.value.trim();
                     }
                 }
+            });
+    
+            // Reconstrói o timestamp
+            if (data.data && data.hora) {
+                // Combina data e hora em formato ISO
+                const [day, month, year] = data.data.split('/');
+                const [hours, minutes] = data.hora.split(':');
+                
+                // Cria um timestamp e subtrai 3 horas
+                const originalTimestamp = new Date(year, month - 1, day, hours, minutes);
+                const adjustedTimestamp = new Date(originalTimestamp.getTime() - (3 * 60 * 60 * 1000)); // Subtrai 3 horas em milissegundos
+                
+                // Converte para ISO string
+                data.horario = adjustedTimestamp.toISOString();
+                delete data.data;
+                delete data.hora;
             }
-        });
-
-        // Remove a data de criação dos dados a serem atualizados para usuários
-        if (!isCaronasTable) {
+        } 
+        // Tabela de Usuários (mantém a lógica original)
+        else {
+            cells.forEach((cell, index) => {
+                const key = keys[index];
+    
+                // Pula campos não editáveis (mantém valor original)
+                if (cell.querySelector(".non-editable")) {
+                    if (key === "criado_em") {
+                        // Preserva a data de criação original para usuários
+                        // Este campo não será enviado na atualização
+                    }
+                }
+                // Coleta dados de inputs e selects
+                else {
+                    const input = cell.querySelector("input, select");
+                    if (input) {
+                        data[key] = input.value.trim();
+                    }
+                }
+            });
+    
+            // Remove a data de criação dos dados a serem atualizados para usuários
             delete data.criado_em;
-        } else {
-            // Para caronas, removemos os campos de data e hora separados
-            // e mantemos apenas o campo horario original
-            delete data.data;
-            delete data.hora;
-
-            // Preservar o timestamp original
-            data.horario = originalTimestamp;
         }
-
+    
         try {
             const endpoint = isCaronasTable ? "caronas" : "usuarios";
             const response = await fetch(`${API_BASE_URL}/${endpoint}/${id}`, {
@@ -697,25 +740,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 headers,
                 body: JSON.stringify(data)
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || `Erro ao atualizar (${response.status})`);
             }
-
+    
             alert("Atualização realizada com sucesso!");
             // Recarrega os dados em vez de recarregar a página inteira
             const usersTableBody = document.querySelector("#users tbody");
             const ridesTableBody = document.querySelector("#rides tbody");
             fetchData(`${API_BASE_URL}/usuarios`, usersTableBody, "users");
             fetchData(`${API_BASE_URL}/caronas`, ridesTableBody, "rides");
-
+    
             refreshUsersList();
-
+    
             // Restaura o estado de edição
             isEditing = false;
             enableAllButtons();
-
+    
         } catch (error) {
             console.error("Erro ao atualizar:", error);
             alert(`Erro ao atualizar os dados: ${error.message}`);
